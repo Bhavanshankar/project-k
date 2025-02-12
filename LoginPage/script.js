@@ -44,7 +44,7 @@ function login () {
 
     // DOne
     alert('User Logged In!!')
-    window.location.href = "index2.html";
+    window.location.href = "login.html";
 
   })
   .catch(function(error) {
