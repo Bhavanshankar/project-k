@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ladder Game</title>
+    <style>
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            padding: 10px;
+            border-radius: 50%;
+            cursor: pointer;
+            z-index: 1000;
+        }
+
+        .theme-toggle i {
+            font-size: 1.5rem;
+            color: white;
+        }
+
+        /* Light Mode Styles */
+        body.light-mode {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        body.light-mode .navbar,
+        body.light-mode .draw,
+        body.light-mode .output,
+        body.light-mode .value-box {
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+        }
+
+        body.light-mode .nav-links a,
+        body.light-mode .ladder {
+            color: #333;
+        }
+
+        body.light-mode .nav-links a:hover {
+            color: #ff6f61;
+        }
+
+        body.light-mode table,
+        body.light-mode th,
+        body.light-mode td {
+            border-color: #333;
+            color: #333;
+        }
+
+        /* Interactive Footer */
+        footer {
+            background: rgba(0, 0, 0, 0.8);
+            padding: 2rem;
+            text-align: center;
+            margin-top: 2rem;
+            border-top: 2px solid var(--neon-blue);
+            position: static;
+        }
+
+        .footer-content {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .footer-section {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .footer-section h3 {
+            color: var(--neon-blue);
+            margin-bottom: 1rem;
+        }
+
+        .footer-section a {
+            color: white;
+            text-decoration: none;
+            display: block;
+            margin: 0.5rem 0;
+        }
+
+        .footer-section a:hover {
+            color: var(--neon-purple);
+        }
+
+        .footer-bottom {
+            margin-top: 1rem;
+            color: white;
+        }
+
+        .footer-bottom a {
+            color: var(--neon-blue);
+            text-decoration: none;
+        }
+
+        .footer-bottom a:hover {
+            color: var(--neon-purple);
+        }
+
+        :root {
+            --neon-blue: #00f3ff;
+            --neon-purple: #bc13fe;
+            --dark-bg: #0a0a15;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: var(--dark-bg);
+            color: white;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Three.js Container */
+        .threejs-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        /* Existing Styles */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 10px 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #ff6f61;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 20px;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #333;
+            font-weight: bold;
+        }
+
+        .nav-links a:hover {
+            color: #ff6f61;
+        }
+
+        .ladder {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 2rem;
+            color: white;
+        }
+
+        .content {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 50px;
+        }
+
+        .draw {
+            background: rgba(255, 255, 255, 0.8);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            width: 30%;
+            text-align: center;
+        }
+
+        .output {
+            background: rgba(255, 255, 255, 0.8);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            width: 30%;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .values {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .value-box {
+            background: rgba(255, 255, 255, 0.8);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            width: 20%;
+        }
+
+        .value-box .top {
+            font-size: 1.2rem;
+            color: #ff6f61;
+        }
+
+        .value-box .bottom {
+            font-size: 1.5rem;
+            color: #333;
+        }
+
+        table,
+        th,
+        td {
+            border: 2px solid white;
+            color: white;
+        }
+
+        table.center {
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Disclaimer Modal */
+        .disclaimer-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            perspective: 1000px;
+        }
+
+        .modal-content {
+            background: linear-gradient(145deg, #ff6f61, #ff9a9e);
+            padding: 2rem;
+            border-radius: 15px;
+            max-width: 500px;
+            transform-style: preserve-3d;
+            animation: modalEntrance 1s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 0 30px rgba(255, 111, 97, 0.4);
+        }
+
+        @keyframes modalEntrance {
+            0% {
+                transform: rotateX(45deg) translateZ(-100px) scale(0.5);
+                opacity: 0;
+            }
+
+            100% {
+                transform: rotateX(0) translateZ(0) scale(1);
+                opacity: 1;
+            }
+        }
+
+        .modal-title {
+            font-size: 2rem;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            transform: translateZ(50px);
+        }
+
+        .modal-content p {
+            color: white;
+            margin: 1.5rem 0;
+            line-height: 1.5;
+            transform: translateZ(30px);
+        }
+
+        .modal-close-btn {
+            background: white;
+            color: #ff6f61;
+            border: none;
+            padding: 0.8rem 2rem;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            transform: translateZ(40px);
+        }
+
+        .modal-close-btn:hover {
+            transform: translateZ(60px) scale(1.1);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Three.js Background -->
+    <div class="threejs-container" id="threejs-container"></div>
+
+    <!-- Disclaimer Modal -->
+    <div id="disclaimerModal" class="disclaimer-modal">
+        <div class="modal-content">
+            <h2 class="modal-title">⚠️ Disclaimer</h2>
+            <p>This is a virtual ladder game platform. Participation is at your own risk. We are not responsible for any
+                financial losses incurred during gameplay. Must be 18+ to participate.</p>
+            <button onclick="closeDisclaimer()" class="modal-close-btn">I Understand</button>
+        </div>
+    </div>
+
+    <!-- Rest of the HTML remains unchanged -->
+    <div class="navbar">
+        <div class="logo">ASSJD</div>
+        <div class="nav-links">
+            <a href="#">Home</a>
+            <a href="#">Profile</a>
+            <a href="#">About Us</a>
+            <a href="index2.html">L2</a>
+        </div>
+    </div>
+    <!-- Dark/Light Mode Toggle -->
+    <button class="theme-toggle" id="themeToggle">
+        <i class="fas fa-moon"></i>
+    </button>
+    <div class="ladder">
+        <h2>LADDER</h2>
+    </div>
+    <div class="content">
+        <div class="draw">DRAW
+            <br>Output will be displayed here
+        </div>
+    </div>
+    <div class="values">
+        <div class="value-box">
+            <div class="top">AB/CD</div>
+        </div>
+    </div>
+    <div>
+        <br>
+        <table style="position: sticky;" class="center">
+            <tr>
+                <th>NO OF TIME</th>
+                <th>X AMOUNT</th>
+                <th>WIN AMOUNT</th>
+                <th>PROFIT IN BET</th>
+            </tr>
+            <tr>
+                <td>1</td>
+                <td>10</td>
+                <td>19</td>
+                <td>9</td>
+            </tr>
+            <tr>
+                <td>2</td>
+                <td>30</td>
+                <td>57</td>
+                <td>17</td>
+            </tr>
+            <tr>
+                <td>3</td>
+                <td>90</td>
+                <td>171</td>
+                <td>41</td>
+            </tr>
+            <tr>
+                <td>4</td>
+                <td>270</td>
+                <td>513</td>
+                <td>113</td>
+            </tr>
+            <tr>
+                <td>5</td>
+                <td>810</td>
+                <td>1539</td>
+                <td>329</td>
+            </tr>
+            <tr>
+                <td>6</td>
+                <td>2430</td>
+                <td>4617</td>
+                <td>977</td>
+            </tr>
+            <tr>
+                <td>7</td>
+                <td>7290</td>
+                <td>13851</td>
+                <td>2921</td>
+            </tr>
+            <tr>
+                <td>TOTAL</td>
+                <td>10930</td>
+            </tr>
+        </table>
+    </div>
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>Quick Links</h3>
+                <a href="#">Home</a>
+                <a href="#">About Us</a>
+                <a href="#">Contact</a>
+            </div>
+            <div class="footer-section">
+                <h3>Legal</h3>
+                <a href="#">Privacy Policy</a>
+                <a href="#">Terms of Service</a>
+                <a href="#">Disclaimer</a>
+            </div>
+            <div class="footer-section">
+                <h3>Follow Us</h3>
+                <a href="#">Facebook</a>
+                <a href="#">Twitter</a>
+                <a href="#">Instagram</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            &copy; 2024 Ladder Game. All rights reserved. | <a href="#">Privacy Policy</a>
+        </div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        // Dark/Light Mode Toggle
+        const themeToggle = document.getElementById('themeToggle');
+        themeToggle.addEventListener('click', () => {
+            document.body.classList.toggle('light-mode');
+            const icon = themeToggle.querySelector('i');
+            if (document.body.classList.contains('light-mode')) {
+                icon.classList.remove('fa-moon');
+                icon.classList.add('fa-sun');
+            } else {
+                icon.classList.remove('fa-sun');
+                icon.classList.add('fa-moon');
+            }
+        });
+        // Three.js Background
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ alpha: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.getElementById('threejs-container').appendChild(renderer.domElement);
+
+        const geometry = new THREE.BufferGeometry();
+        const vertices = [];
+        for (let i = 0; i < 5000; i++) {
+            vertices.push(
+                Math.random() * 2000 - 1000,
+                Math.random() * 2000 - 1000,
+                Math.random() * 2000 - 1000
+            );
+        }
+        geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
+        const particles = new THREE.Points(geometry,
+            new THREE.PointsMaterial({ color: 0x00f3ff, size: 0.5 }));
+        scene.add(particles);
+
+        camera.position.z = 1000;
+        function animate() {
+            requestAnimationFrame(animate);
+            particles.rotation.x += 0.0001;
+            particles.rotation.y += 0.0001;
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        // Disclaimer Modal
+        window.onload = function () {
+            document.getElementById('disclaimerModal').style.display = 'flex';
+        }
+
+        function closeDisclaimer() {
+            document.getElementById('disclaimerModal').style.display = 'none';
+        }
+
+        function showDisclaimer() {
+            document.getElementById('disclaimerModal').style.display = 'flex';
+        }
+
+        document.addEventListener('mousemove', (e) => {
+            const modal = document.querySelector('.modal-content');
+            const xAxis = (window.innerWidth / 2 - e.pageX) / 25;
+            const yAxis = (window.innerHeight / 2 - e.pageY) / 25;
+            modal.style.transform = `rotateY(${xAxis}deg) rotateX(${yAxis}deg) translateZ(30px)`;
+        });
+    </script>
+</body>
+
+</html>
