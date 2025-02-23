@@ -44,7 +44,7 @@ function login () {
 
     // DOne
     alert('User Logged In!!')
-    window.location.href = "index2.html";
+    window.location.href = "LoginPage/index1.html";
 
   })
   .catch(function(error) {
